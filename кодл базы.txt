@@ -1,0 +1,252 @@
+название базы: stroymaterialy_demo
+
+-- =====================================================
+-- ПОЛНОЕ ПЕРЕСОЗДАНИЕ БАЗЫ ДЛЯ ДЕМОЭКЗАМЕНА
+-- ООО «СтройМатериалы»
+-- =====================================================
+DROP DATABASE IF EXISTS stroymaterialy_demo;
+CREATE DATABASE stroymaterialy_demo CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE stroymaterialy_demo;
+
+-- ====================== ОСНОВНЫЕ ТАБЛИЦЫ ======================
+CREATE TABLE roles (
+    role_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL UNIQUE
+);
+
+CREATE TABLE pickup_points (
+    point_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    address VARCHAR(500) NOT NULL,
+    phone VARCHAR(50),
+    working_hours VARCHAR(100)
+);
+
+CREATE TABLE users (
+    user_id INT AUTO_INCREMENT PRIMARY KEY,
+    login VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    role_id INT NOT NULL,
+    full_name VARCHAR(255) NOT NULL,
+    phone VARCHAR(50),
+    email VARCHAR(255),
+    FOREIGN KEY (role_id) REFERENCES roles(role_id)
+);
+
+CREATE TABLE tovars (
+    tovar_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    article VARCHAR(50) UNIQUE,
+    price DECIMAL(10,2) NOT NULL DEFAULT 0,
+    discount INT DEFAULT 0,
+    quantity INT DEFAULT 0,
+    unit VARCHAR(50) DEFAULT 'шт',
+    description TEXT
+);
+
+CREATE TABLE orders (
+    order_id INT AUTO_INCREMENT PRIMARY KEY,
+    order_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    user_id INT NOT NULL,
+    status VARCHAR(50) DEFAULT 'Новый',
+    total DECIMAL(12,2) DEFAULT 0,
+    point_id INT NULL,
+    comment TEXT,
+    FOREIGN KEY (user_id) REFERENCES users(user_id),
+    FOREIGN KEY (point_id) REFERENCES pickup_points(point_id)
+);
+
+CREATE TABLE order_items (
+    item_id INT AUTO_INCREMENT PRIMARY KEY,
+    order_id INT NOT NULL,
+    tovar_id INT NOT NULL,
+    quantity INT NOT NULL,
+    price DECIMAL(10,2) NOT NULL,
+    FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE,
+    FOREIGN KEY (tovar_id) REFERENCES tovars(tovar_id)
+);
+
+-- ====================== RAW-ТАБЛИЦЫ ДЛЯ ИМПОРТА ======================
+CREATE TABLE users_import_raw (
+    Логин VARCHAR(50),
+    Пароль VARCHAR(255),
+    Роль VARCHAR(50),
+    ФИО VARCHAR(255),
+    Телефон VARCHAR(50),
+    Email VARCHAR(255)
+);
+
+CREATE TABLE tovars_import_raw (
+    Наименование VARCHAR(255),
+    Артикул VARCHAR(50),
+    Цена VARCHAR(50),
+    Скидка VARCHAR(50),
+    Количество VARCHAR(50),
+    Единица VARCHAR(50),
+    Описание TEXT
+);
+
+CREATE TABLE pickup_points_import_raw (
+    Название VARCHAR(255),
+    Адрес VARCHAR(500),
+    Телефон VARCHAR(50),
+    График VARCHAR(100)
+);
+
+CREATE TABLE orders_import_raw (
+    Дата VARCHAR(50),
+    Логин_клиента VARCHAR(50),
+    Статус VARCHAR(50),
+    Пункт_выдачи VARCHAR(255),
+    Комментарий TEXT
+);
+
+-- ====================== ТЕСТОВЫЕ ДАННЫЕ ======================
+INSERT INTO roles (name) VALUES 
+('администратор'),
+('менеджер'),
+('клиент');
+
+INSERT INTO users (login, password, role_id, full_name, phone, email) VALUES
+('admin', 'admin123', 1, 'Администратор Системы', '+7 (999) 111-22-33', 'admin@stroymaterialy.ru'),
+('manager', 'manager123', 2, 'Менеджер Петров П.П.', '+7 (999) 222-33-44', 'manager@stroymaterialy.ru'),
+('client1', 'client123', 3, 'Иванов Иван Иванович', '+7 (999) 333-44-55', 'ivanov@mail.ru');
+
+
+
+
+если не заработает то этот код: 
+
+-- =====================================================
+-- ПОЛНЫЙ СКРИПТ БАЗЫ ДАННЫХ ДЛЯ ДЕМОЭКЗАМЕНА
+-- ООО «СтройМатериалы»
+-- =====================================================
+
+DROP DATABASE IF EXISTS stroymaterialy_demo;
+CREATE DATABASE stroymaterialy_demo CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE stroymaterialy_demo;
+
+-- ====================== СПРАВОЧНИКИ ======================
+CREATE TABLE roles (
+    role_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL UNIQUE
+);
+
+CREATE TABLE pickup_points (
+    point_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    address VARCHAR(500) NOT NULL,
+    phone VARCHAR(50),
+    working_hours VARCHAR(100)
+);
+
+-- ====================== ОСНОВНЫЕ ТАБЛИЦЫ ======================
+CREATE TABLE users (
+    user_id INT AUTO_INCREMENT PRIMARY KEY,
+    login VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    role_id INT NOT NULL,
+    full_name VARCHAR(255) NOT NULL,
+    phone VARCHAR(50),
+    email VARCHAR(255),
+    FOREIGN KEY (role_id) REFERENCES roles(role_id)
+);
+
+CREATE TABLE tovars (
+    tovar_id INT AUTO_INCREMENT PRIMARY KEY,
+    article VARCHAR(50) UNIQUE,
+    name VARCHAR(255) NOT NULL,
+    unit VARCHAR(50),
+    price DECIMAL(12,2) NOT NULL DEFAULT 0,
+    discount INT DEFAULT 0,
+    quantity INT DEFAULT 0,
+    supplier VARCHAR(255),
+    manufacturer VARCHAR(255),
+    category VARCHAR(255),
+    description TEXT,
+    photo VARCHAR(255)
+);
+
+CREATE TABLE orders (
+    order_id INT AUTO_INCREMENT PRIMARY KEY,
+    order_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    user_id INT NOT NULL,
+    status VARCHAR(50) DEFAULT 'Новый',
+    total DECIMAL(12,2) DEFAULT 0,
+    point_id INT NULL,
+    comment TEXT,
+    FOREIGN KEY (user_id) REFERENCES users(user_id),
+    FOREIGN KEY (point_id) REFERENCES pickup_points(point_id)
+);
+
+CREATE TABLE order_items (
+    item_id INT AUTO_INCREMENT PRIMARY KEY,
+    order_id INT NOT NULL,
+    tovar_id INT NOT NULL,
+    quantity INT NOT NULL,
+    price DECIMAL(12,2) NOT NULL,
+    FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE,
+    FOREIGN KEY (tovar_id) REFERENCES tovars(tovar_id)
+);
+
+-- ====================== RAW-ТАБЛИЦЫ ДЛЯ ИМПОРТА ======================
+CREATE TABLE users_import_raw (
+    Логин VARCHAR(50),
+    Пароль VARCHAR(255),
+    Роль VARCHAR(50),
+    ФИО VARCHAR(255),
+    Телефон VARCHAR(50),
+    Email VARCHAR(255)
+);
+
+CREATE TABLE tovars_import_raw (
+    Артикул VARCHAR(50),
+    `Наименование товара` VARCHAR(255),
+    `Единица измерения` VARCHAR(50),
+    Цена VARCHAR(50),
+    Поставщик VARCHAR(255),
+    Производитель VARCHAR(255),
+    `Категория товара` VARCHAR(255),
+    `Действующая скидка` VARCHAR(50),
+    `Кол-во на складе` VARCHAR(50),
+    `Описание товара` TEXT,
+    Фото VARCHAR(255)
+);
+
+CREATE TABLE pickup_points_import_raw (
+    name VARCHAR(255),
+    address VARCHAR(500),
+    phone VARCHAR(50),
+    working_hours VARCHAR(100)
+);
+
+CREATE TABLE orders_import_raw (
+    Дата VARCHAR(50),
+    Логин_клиента VARCHAR(50),
+    Статус VARCHAR(50),
+    Пункт_выдачи VARCHAR(255),
+    Комментарий TEXT
+);
+
+-- ====================== ЗАПОЛНЕНИЕ СПРАВОЧНИКОВ ======================
+INSERT INTO roles (name) VALUES 
+('администратор'), 
+('менеджер'), 
+('клиент');
+
+-- ====================== ТЕСТОВЫЕ ПОЛЬЗОВАТЕЛИ ======================
+INSERT INTO users (login, password, role_id, full_name, phone, email) VALUES
+('admin', 'admin123', 1, 'Администратор Системы', '+7 (999) 111-22-33', 'admin@stroymaterialy.ru'),
+('manager', 'manager123', 2, 'Менеджер Петров П.П.', '+7 (999) 222-33-44', 'manager@stroymaterialy.ru'),
+('client1', 'client123', 3, 'Иванов Иван Иванович', '+7 (999) 333-44-55', 'ivanov@mail.ru');
+
+-- ====================== ИНДЕКСЫ ======================
+CREATE INDEX idx_users_role ON users(role_id);
+CREATE INDEX idx_tovars_name ON tovars(name);
+CREATE INDEX idx_orders_user ON orders(user_id);
+
+SELECT 'База данных успешно создана!' AS Message;
+
+
+
+
